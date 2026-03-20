@@ -4,6 +4,6 @@
   "description": "Drama Watch & Download Site with Telegram Bot",
   "private": true,
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
   }
 }
