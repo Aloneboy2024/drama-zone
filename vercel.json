@@ -4,3 +4,10 @@
     { "source": "/(.*)", "destination": "/public/index.html" }
   ]
 }
+{
+  "rewrites": [
+    { "source": "/api/dramas", "destination": "/dramas.js" },
+    { "source": "/api/webhook", "destination": "/webhook.js" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
