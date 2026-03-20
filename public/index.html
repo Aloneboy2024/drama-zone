@@ -799,7 +799,7 @@ let currentFilter = 'all';
 // Dramas fetch karo API se
 async function loadDramas() {
   try {
-    const res = await fetch('/api/dramas');
+    const res = await fetch('https://drama-zone.vercel.app/api/dramas');
     const data = await res.json();
     allDramas = data.dramas || [];
     
