@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DramaZone — Watch & Download</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #080c14;
+    --surface: #0f1520;
+    --card: #131a27;
+    --border: #1e2d45;
+    --accent: #e63946;
+    --accent2: #f4a261;
+    --text: #e8eaf0;
+    --muted: #6b7a99;
+    --gold: #ffd700;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    cursor: default;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+  /* NOISE TEXTURE */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+
+  /* NAVBAR */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(8,12,20,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2rem;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .search-wrap {
+    position: relative;
+  }
+
+  .search-wrap input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.5rem 1rem 0.5rem 2.5rem;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    width: 220px;
+    transition: all 0.3s;
+    outline: none;
+  }
+
+  .search-wrap input:focus {
+    border-color: var(--accent);
+    background: var(--card);
+    width: 280px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .tg-btn {
+    background: linear-gradient(135deg, #0088cc, #006aab);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .tg-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,136,204,0.4);
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    padding: 4rem 2rem 3rem;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(230,57,70,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(3rem, 8vw, 6rem);
+    letter-spacing: 6px;
+    line-height: 1;
+    background: linear-gradient(180deg, #ffffff 0%, #8899bb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 500px;
+    margin: 0 auto 2rem;
+  }
+
+  /* FILTERS */
+  .filters {
+    padding: 1rem 2rem;
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .filter-label {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-right: 0.5rem;
+  }
+
+  .filter-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 0.35rem 0.9rem;
+    border-radius: 20px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover,
+  .filter-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    padding: 0.75rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .stat span {
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  /* LOADING */
+  .loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6rem 2rem;
+    gap: 1rem;
+  }
+
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading p {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  /* GRID */
+  .grid-section {
+    padding: 2rem;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.6rem;
+    letter-spacing: 3px;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  .drama-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.2rem;
+  }
+
+  /* CARD */
+  .drama-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    cursor: pointer;
+    animation: fadeIn 0.5s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .drama-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    border-color: var(--accent);
+  }
+
+  .card-poster {
+    position: relative;
+    aspect-ratio: 2/3;
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .card-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s;
+  }
+
+  .drama-card:hover .card-poster img {
+    transform: scale(1.06);
+  }
+
+  .card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(8,12,20,0.95) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    display: flex;
+    align-items: flex-end;
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+
+  .drama-card:hover .card-overlay {
+    opacity: 1;
+  }
+
+  .btn-watch, .btn-dl {
+    flex: 1;
+    padding: 0.45rem 0;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: transform 0.2s;
+  }
+
+  .btn-watch {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-dl {
+    background: rgba(255,255,255,0.15);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(4px);
+  }
+
+  .btn-watch:hover, .btn-dl:hover {
+    transform: scale(1.04);
+  }
+
+  .card-badge {
+    position: absolute;
+    top: 0.6rem;
+    left: 0.6rem;
+    background: var(--accent);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .card-badge.new {
+    background: #22c55e;
+  }
+
+  .card-rating {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(4px);
+    color: var(--gold);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+  }
+
+  .no-poster {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    background: linear-gradient(135deg, var(--surface), var(--card));
+  }
+
+  .card-info {
+    padding: 0.75rem;
+  }
+
+  .card-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    line-height: 1.3;
+    margin-bottom: 0.3rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .card-lang {
+    font-size: 0.7rem;
+    color: var(--muted);
+    background: var(--surface);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  .card-ep {
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .card-year {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .card-imdb {
+    font-size: 0.75rem;
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  /* MODAL */
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(8px);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .modal-bg.open {
+    display: flex;
+  }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    max-width: 680px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalIn 0.3s ease;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .modal-header {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-poster {
+    width: 130px;
+    min-width: 130px;
+    aspect-ratio: 2/3;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .modal-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .modal-titles {
+    flex: 1;
+  }
+
+  .modal-titles h2 {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+    line-height: 1.1;
+  }
+
+  .modal-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .tag {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: var(--surface);
+  }
+
+  .tag.accent { border-color: var(--accent); color: var(--accent); }
+  .tag.gold { border-color: var(--gold); color: var(--gold); }
+
+  .modal-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  .modal-info-row {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .info-item {
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  .info-item strong {
+    color: var(--text);
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.1rem;
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+  }
+
+  .synopsis {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .btn-primary {
+    flex: 1;
+    padding: 0.85rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .btn-primary:hover {
+    background: #c1121f;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(230,57,70,0.35);
+  }
+
+  .btn-secondary {
+    flex: 1;
+    padding: 0.85rem;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 36px;
+    height: 36px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .modal-close:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .modal { position: relative; }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 6rem 2rem;
+    color: var(--muted);
+  }
+
+  .empty-icon { font-size: 4rem; margin-bottom: 1rem; }
+  .empty h3 { color: var(--text); font-size: 1.2rem; margin-bottom: 0.5rem; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  footer a { color: var(--accent); text-decoration: none; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    nav { padding: 0 1rem; }
+    .logo { font-size: 1.5rem; }
+    .search-wrap input { width: 150px; }
+    .search-wrap input:focus { width: 180px; }
+    .hero { padding: 2rem 1rem; }
+    .filters { padding: 0.75rem 1rem; }
+    .grid-section { padding: 1.5rem 1rem; }
+    .drama-grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 0.8rem; }
+    .modal-header { flex-direction: column; }
+    .modal-poster { width: 100%; aspect-ratio: 16/9; }
+    .modal-poster img { object-position: top; }
+    .modal-actions { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="logo">DramaZone</div>
+  <div class="nav-right">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search dramas..."/>
+    </div>
+    <a class="tg-btn" href="https://t.me/KDC_Studio" target="_blank" id="tgLink">
+      ✈️ Telegram
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>WATCH &amp; DOWNLOAD</h1>
+  <p>Korean, Chinese &amp; Japanese dramas — sab ek jagah. Free mein!</p>
+</div>
+
+<!-- FILTERS -->
+<div class="filters">
+  <span class="filter-label">Filter:</span>
+  <button class="filter-btn active" onclick="filterDramas('all', this)">All</button>
+  <button class="filter-btn" onclick="filterDramas('Korean', this)">🇰🇷 Korean</button>
+  <button class="filter-btn" onclick="filterDramas('Chinese', this)">🇨🇳 Chinese</button>
+  <button class="filter-btn" onclick="filterDramas('Japanese', this)">🇯🇵 Japanese</button>
+  <button class="filter-btn" onclick="filterDramas('Romance', this)">💕 Romance</button>
+  <button class="filter-btn" onclick="filterDramas('Action', this)">⚔️ Action</button>
+  <button class="filter-btn" onclick="filterDramas('Thriller', this)">🔪 Thriller</button>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat">📺 Total: <span id="totalCount">0</span> Dramas</div>
+  <div class="stat">🆕 Last Updated: <span id="lastUpdate">Loading...</span></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="grid-section">
+  <div class="section-title">🔥 All Dramas</div>
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Loading dramas from Telegram...</p>
+  </div>
+  <div class="drama-grid" id="dramaGrid" style="display:none"></div>
+  <div class="empty" id="emptyState" style="display:none">
+    <div class="empty-icon">🎬</div>
+    <h3>No dramas found</h3>
+    <p>Try changing the filter or search query</p>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    <div class="modal-header">
+      <div class="modal-poster">
+        <img id="modalPoster" src="" alt=""/>
+      </div>
+      <div class="modal-titles">
+        <h2 id="modalTitle"></h2>
+        <div class="modal-tags" id="modalTags"></div>
+        <div class="modal-rating" id="modalRating"></div>
+        <div class="modal-info-row" id="modalInfoRow"></div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <p class="synopsis" id="modalSynopsis"></p>
+      <div class="modal-actions">
+        <a class="btn-primary" id="modalWatch" href="#" target="_blank">▶ Watch Online</a>
+        <a class="btn-secondary" id="modalDownload" href="#" target="_blank">📥 Download</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>Made with ❤️ | <a href="https://t.me/KDC_Studio" id="footerLink">Join Telegram Channel</a></p>
+</footer>
+
+<script>
+const TELEGRAM_CHANNEL = "https://t.me/KDC_Studio"; // Auto-set karo
+let allDramas = [];
+let currentFilter = 'all';
+
+// Dramas fetch karo API se
+async function loadDramas() {
+  try {
+    const res = await fetch('/api/dramas');
+    const data = await res.json();
+    allDramas = data.dramas || [];
+    
+    document.getElementById('totalCount').textContent = allDramas.length;
+    document.getElementById('lastUpdate').textContent = 
+      data.last_updated ? new Date(data.last_updated).toLocaleDateString('en-IN') : 'Just now';
+    
+    renderDramas(allDramas);
+  } catch(e) {
+    console.error(e);
+    document.getElementById('loading').innerHTML = `
+      <div class="empty-icon">⚠️</div>
+      <p style="color:var(--muted)">Could not load dramas. Check API setup.</p>
+    `;
+  }
+}
+
+function renderDramas(dramas) {
+  const grid = document.getElementById('dramaGrid');
+  const loading = document.getElementById('loading');
+  const empty = document.getElementById('emptyState');
+
+  loading.style.display = 'none';
+
+  if (!dramas.length) {
+    grid.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  grid.style.display = 'grid';
+  
+  grid.innerHTML = dramas.map((d, i) => {
+    const isNew = isNewDrama(d.added_date);
+    const posterHtml = d.poster_url 
+      ? `<img src="${d.poster_url}" alt="${d.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=no-poster>🎬</div>'">`
+      : `<div class="no-poster">🎬</div>`;
+
+    return `
+    <div class="drama-card" style="animation-delay:${i * 0.04}s" onclick="openModal(${d.id})">
+      <div class="card-poster">
+        ${posterHtml}
+        ${isNew ? '<span class="card-badge new">NEW</span>' : '<span class="card-badge">HD</span>'}
+        ${d.rating ? `<div class="card-rating">⭐ ${d.rating}</div>` : ''}
+        <div class="card-overlay">
+          <a class="btn-watch" href="${d.channel_link || TELEGRAM_CHANNEL}" target="_blank" onclick="event.stopPropagation()">▶ Watch</a>
+          <a class="btn-dl" href="${d.channel_link || TELEGRAM_CHANNEL}" target="_blank" onclick="event.stopPropagation()">📥</a>
+        </div>
+      </div>
+      <div class="card-info">
+        <div class="card-title">${d.title}</div>
+        <div class="card-meta">
+          ${d.year ? `<span class="
