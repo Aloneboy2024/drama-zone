@@ -1,9 +1,0 @@
-{
-  "name": "drama-zone",
-  "version": "1.0.0",
-  "description": "Drama Watch & Download Site with Telegram Bot",
-  "private": true,
-  "engines": {
-    "node": "24.x"
-  }
-}
